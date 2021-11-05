@@ -1,0 +1,49 @@
+{
+    "name": "imarc/matrix-inventory",
+    "description": "Inventories the use of matrix fields",
+    "type": "craft-plugin",
+    "version": "0.0.1",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "matrix inventory"
+    ],
+    "support": {
+        "docs": "https://github.com/LinneaHarts/matrix-inventory/blob/master/README.md",
+        "issues": "https://github.com/LinneaHarts/matrix-inventory/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Linnea Hartsuyker",
+            "homepage": "https://www.imarc.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0"
+    },
+    "require-dev": {
+      "craftcms/cms": "^3.2.0",
+      "codeception/codeception": "^3.0",
+      "vlucas/phpdotenv": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "imarc\\matrixinventory\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Matrix Inventory",
+        "handle": "matrix-inventory",
+        "developer": "Linnea Hartsuyker",
+        "developerUrl": "https://www.imarc.com",
+        "documentationUrl": "https://github.com/LinneaHarts/matrix-inventory/blob/master/README.md",
+        "changelogUrl": "https://raw.githubusercontent.com/LinneaHarts/matrix-inventory/master/CHANGELOG.md",
+        "components": {
+            "inventory": "imarc\\matrixinventory\\services\\Inventory"
+        },
+        "class": "imarc\\matrixinventory\\MatrixInventory"
+    }
+}

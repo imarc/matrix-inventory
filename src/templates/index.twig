@@ -1,0 +1,63 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Matrix Inventory plugin for Craft CMS 3.x
+ *
+ * Matrix Inventory index.twig
+ *
+ * @author    Linnea Hartsuyker
+ * @copyright Copyright (c) 2021 Linnea Hartsuyker
+ * @link      https://www.imarc.com
+ * @package   MatrixInventory
+ * @since     0.0.1
+ */
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("imarc\\matrixinventory\\assetbundles\\matrixinventory\\MatrixInventoryAsset") %}
+{% do view.registerAssetBundle("imarc\\matrixinventory\\assetbundles\\indexcpsection\\IndexCPSectionAsset") %}
+
+{# Link for the ? icon at the bottom of the page #}
+{% set docsUrl = "https://github.com/LinneaHarts/matrix-inventory/blob/master/README.md" %}
+
+{# The title of this CP section #}
+{% set title = "Matrix Inventory" %}
+
+{# The URL to this plugin's base CP section #}
+{% set pluginCpUrl = url('matrix-inventory') %}
+
+{# Get a URL to an image in our AssetBundle #}
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@imarc/matrixinventory/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
+
+{# Content that should appear in the page header#}
+{% set extraPageHeaderHtml %}
+    <div class="buttons">
+        <a href="{{ pluginCpUrl }}" class="btn submit add icon">{{ "Click Me!"|t('matrix-inventory') }}</a>
+    </div>
+{% endset %}
+
+{% set matrixList = craft.matrixInventory.matrixFieldList %}
+
+{# The content of the CP Section#}
+{% set content %}
+   <div class="tableview tablepane">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>Matrix Name</th>
+                    <th>Matrix Handle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for matrix in matrixList %}
+                    <tr>
+                        <td><a href="matrix-inventory/matrix?handle={{ matrix.handle }}">{{ matrix.name }}</a></td>
+                        <td>{{ matrix.handle }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endset %}

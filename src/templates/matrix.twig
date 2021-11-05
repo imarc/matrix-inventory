@@ -1,0 +1,44 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+
+{% set showSiteMenu = false %}
+
+{% set sections = craft.sections.getAllSections() %}
+
+{% set handle = craft.app.request.getQueryParam('handle') %}
+
+{% set blockTypes = craft.matrixInventory.matrixBlockTypes(handle) %}
+{% set title = 'Blocks in ' ~ handle %}
+
+{% block header %}
+    <p><a href="../matrix-inventory">< Back to Matrix List</a></p>
+{% endblock %}
+
+{% block content %}
+    <div class="tableview tablepane">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>Block Handle</th>
+                    <th>Enabled Entry Uses</th>
+                    <th>Disabled Entry Uses</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for type, count in blockTypes %}
+                    <tr>
+                        <td>{{ type }}</td>
+                        <td><a href="entries?handle={{ handle }}&block={{ type }}">{{ count.enabled }}</td>
+                        <td><a href="entries?handle={{ handle }}&block={{ type }}">{{ count.disabled }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block footer %}
+    <p><a href="../matrix-inventory">< Back to Matrix List</a></p>
+{% endblock %}

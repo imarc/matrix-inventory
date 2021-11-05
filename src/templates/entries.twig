@@ -1,0 +1,47 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+
+{% set showSiteMenu = false %}
+
+{% set sections = craft.sections.getAllSections() %}
+
+{% set handle = craft.app.request.getQueryParam('handle') %}
+
+{% set blockName = craft.app.request.getQueryParam('block') %}
+
+{% set entries = craft.matrixInventory.listEntries(handle, blockName) %}
+{% set title = 'Entries with ' ~ handle ~ ' - ' ~ blockName ~ ' block' %}
+
+{% block header %}
+    <p><a href="matrix?handle={{ handle }}">< Back to Blocks in {{ handle }}</a></p>
+{% endblock %}
+{% block content %}
+    <div class="tableview tablepane">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>Section</th>
+                    <th>Entry Title</th>
+                    <th>Edit</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry.section }}</td>
+                        <td><a href="{{ entry.url }}">{{ entry.title }}</a></td>
+                        <td><a href="{{ entry.cpEditUrl }}">Edit Entry</a></td>
+                        <td><span class="status {{ entry.status }}"></span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block footer %}
+    <p><a href="matrix?handle={{ handle }}">< Back to Blocks in {{ handle }}</a></p>
+{% endblock %}
