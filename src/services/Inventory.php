@@ -111,7 +111,7 @@ class Inventory extends Component
      * TO DO: Make this show disabled and enabled
      */
 
-    public function listBlockTypes($matrixHandle = null) {
+    public function listBlockTypes($matrixHandle = null, $siteHandle = null) {
         $blockTypes = null;
         $inventory = [];
         if ($matrixHandle) {
@@ -125,7 +125,11 @@ class Inventory extends Component
                 if ($blockTypes) {
                     $sections = Craft::$app->sections->allSections;
                     foreach ($sections as $section) {
-                        $entries = Entry::find()->section($section->handle)->anyStatus()->all();
+                        if ($siteHandle) {
+                            $entries = Entry::find()->section($section->handle)->anyStatus()->site($siteHandle)->all();
+                        } else {
+                            $entries = Entry::find()->section($section->handle)->anyStatus()->all();
+                        }
                         foreach ($entries as $entry) {
                             $entryFields = $entry->getFieldLayout()->getFields();
                             foreach ($entryFields as $fieldLayout) {
