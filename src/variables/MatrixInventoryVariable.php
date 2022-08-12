@@ -56,11 +56,11 @@ class MatrixInventoryVariable
         return $result;
     }
 
-    public function matrixBlockTypes($matrixHandle = null) {
+    public function matrixBlockTypes($matrixHandle = null, $siteHandle = null) {
 
         $result = null;
         if ($matrixHandle) {
-            $result = (new Inventory)->listBlockTypes($matrixHandle);
+            $result = (new Inventory)->listBlockTypes($matrixHandle, $siteHandle);
         } 
         return $result;
 

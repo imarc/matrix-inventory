@@ -8,7 +8,9 @@
 
 {% set handle = craft.app.request.getQueryParam('handle') %}
 
-{% set blockTypes = craft.matrixInventory.matrixBlockTypes(handle) %}
+{% set site = craft.app.request.getQueryParam('site') ?: null %}
+
+{% set blockTypes = craft.matrixInventory.matrixBlockTypes(handle, site) %}
 {% set title = 'Blocks in ' ~ handle %}
 
 {% block header %}
