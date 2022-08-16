@@ -11,6 +11,7 @@
 namespace imarc\matrixinventory\jobs;
 
 use imarc\matrixinventory\MatrixInventory;
+use imarc\matrixinventory\services\Inventory as InventoryService;
 
 use Craft;
 use craft\queue\BaseJob;
@@ -45,7 +46,7 @@ use craft\queue\BaseJob;
  * @package   MatrixInventory
  * @since     0.0.1
  */
-class Inventory extends BaseJob
+class MatrixList extends BaseJob
 {
     // Public Properties
     // =========================================================================
@@ -69,7 +70,8 @@ class Inventory extends BaseJob
      */
     public function execute($queue)
     {
-        // Do work here
+        $inventoryService = new InventoryService();
+        $inventoryService->storeMatrixFields();
     }
 
     // Protected Methods
@@ -82,6 +84,6 @@ class Inventory extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return Craft::t('matrix-inventory', 'Inventory');
+        return Craft::t('matrix-inventory', 'Create Matrix List');
     }
 }

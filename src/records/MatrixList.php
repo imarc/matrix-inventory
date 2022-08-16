@@ -31,7 +31,7 @@ use craft\db\ActiveRecord;
  * @package   MatrixInventory
  * @since     0.0.1
  */
-class Inventory extends ActiveRecord
+class MatrixList extends ActiveRecord
 {
     // Public Static Methods
     // =========================================================================
@@ -50,6 +50,6 @@ class Inventory extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%matrixinventory_inventory}}';
+        return '{{%matrixinventory_matrixlist}}';
     }
 }

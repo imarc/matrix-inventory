@@ -13,6 +13,7 @@ namespace imarc\matrixinventory;
 use imarc\matrixinventory\services\Inventory as InventoryService;
 use imarc\matrixinventory\variables\MatrixInventoryVariable;
 use imarc\matrixinventory\models\Settings;
+use imarc\matrixinventory\jobs\MatrixList as MatrixListJob;
 
 use Craft;
 use craft\base\Plugin;
@@ -139,7 +140,10 @@ class MatrixInventory extends Plugin
             Plugins::EVENT_AFTER_INSTALL_PLUGIN,
             function (PluginEvent $event) {
                 if ($event->plugin === $this) {
-                    // We were just installed
+                    // We were just installed, now index all of the existing matrixes
+                    $job = new MatrixListJob();
+                    Craft::$app->queue->push($job); 
+
                 }
             }
         );

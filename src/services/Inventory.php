@@ -11,6 +11,9 @@
 namespace imarc\matrixinventory\services;
 
 use imarc\matrixinventory\MatrixInventory;
+use imarc\matrixinventory\records\MatrixList as MatrixListRecord;
+use imarc\matrixinventory\models\MatrixList as MatrixListModel;
+use imarc\matrixinventory\jobs\MatrixLIst as MatrixListJob;
 
 use Craft;
 use craft\base\Component;
@@ -160,20 +163,38 @@ class Inventory extends Component
     }
 
     public function listMatrixFields() {
-        $result = null;
+        $records = (new MatrixListRecord())->find()->all();
+
+        $models = [];
+
+        foreach ($records as $record) {
+            $model = new MatrixListModel();
+            $model->setAttributes($record->getAttributes(), false);
+            $models[] = $model;
+        }
+
+        return $models;
+
+    }
+
+    public function storeMatrixFields() {
         $fields = Craft::$app->fields->getAllFields(false);
-        $matrixList = [];
         $handles = [];
         foreach ($fields as $field) {
             if (get_class($field) == 'craft\\fields\\Matrix') {
                 if (!in_array($field->handle, $handles)) {
-                    array_push($matrixList, ["name" => $field->name, "handle" => $field->handle]);
                     array_push($handles, $field->handle);
+                    $model = new MatrixListModel();
+                    $model->matrixName = $field->name;
+                    $model->matrixHandle = $field->handle;
+                    $record = new MatrixListRecord();
+                    $record->setAttributes($model->getAttributes(), false);
+                    $record->save();
                 }
                 
             }
         }
-        return $matrixList;
+        return true;
     }
 
     public function listEntries($handle = null, $matrixBlock = null) {

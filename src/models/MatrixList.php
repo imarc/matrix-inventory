@@ -27,7 +27,7 @@ use craft\base\Model;
  * @package   MatrixInventory
  * @since     0.0.1
  */
-class Inventory extends Model
+class MatrixList extends Model
 {
     // Public Properties
     // =========================================================================
@@ -37,7 +37,13 @@ class Inventory extends Model
      *
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    public $id;
+    public $dateCreated;
+    public $dateUpdated;
+    public $uid;
+    public $siteId = 1; 
+    public $matrixName = '';
+    public $matrixHandle = '';
 
     // Public Methods
     // =========================================================================
@@ -55,8 +61,8 @@ class Inventory extends Model
     public function rules()
     {
         return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
+            [['id', 'siteId'], 'integer'],
+            [['matrix_name', 'matrix_handle'], 'string']
         ];
     }
 }

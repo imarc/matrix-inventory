@@ -53,8 +53,8 @@
             <tbody>
                 {% for matrix in matrixList %}
                     <tr>
-                        <td><a href="matrix-inventory/matrix?handle={{ matrix.handle }}">{{ matrix.name }}</a></td>
-                        <td>{{ matrix.handle }}</td>
+                        <td><a href="matrix-inventory/matrix?handle={{ matrix.matrixHandle }}">{{ matrix.matrixName }}</a></td>
+                        <td>{{ matrix.matrixHandle }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

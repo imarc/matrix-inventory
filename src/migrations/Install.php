@@ -97,22 +97,41 @@ class Install extends Migration
     {
         $tablesCreated = false;
 
-    // matrixinventory_inventory table
-        $tableSchema = Craft::$app->db->schema->getTableSchema('{{%matrixinventory_inventory}}');
+    // matrixinventory_matrixlist table
+        $tableSchema = Craft::$app->db->schema->getTableSchema('{{%matrixinventory_matrixlist}}');
         if ($tableSchema === null) {
             $tablesCreated = true;
             $this->createTable(
-                '{{%matrixinventory_inventory}}',
+                '{{%matrixinventory_matrixlist}}',
                 [
                     'id' => $this->primaryKey(),
                     'dateCreated' => $this->dateTime()->notNull(),
                     'dateUpdated' => $this->dateTime()->notNull(),
                     'uid' => $this->uid(),
-                // Custom columns in the table
                     'siteId' => $this->integer()->notNull(),
-                    'some_field' => $this->string(255)->notNull()->defaultValue(''),
+                    'matrixName' => $this->string(255)->notNull()->defaultValue(''),
+                    'matrixHandle' => $this->string(255)->notNull()->defaultValue('')
                 ]
             );
+        }
+
+        $tableSchema = Craft::$app->db->schema->getTableSchema('{{%matrixinventory_matrixblocks}}');
+        if ($tableSchema === null) {
+            $tablesCreated = true;
+            $this->createTable(
+                '{{%matrixinventory_matrixblocks}}',
+                [
+                    'id' => $this->primaryKey(),
+                    'dateCreated' => $this->dateTime()->notNull(),
+                    'dateUpdated' => $this->dateTime()->notNull(),
+                    'uid' => $this->uid(),
+                    'siteId' => $this->integer()->notNull(),
+                    'matrixHandle' => $this->string(255)->notNull()->defaultValue(''),
+                    'blockHandle' => $this->string(255)->notNull()->defaultValue(''),
+                    'disabledEntries' => $this->integer()->notNull(),
+                    'enabledEntries' => $this->integer()->notNull()
+                ]
+                );
         }
 
         return $tablesCreated;
@@ -125,15 +144,25 @@ class Install extends Migration
      */
     protected function createIndexes()
     {
-    // matrixinventory_inventory table
+    // matrixinventory_matrixlist table
         $this->createIndex(
             $this->db->getIndexName(
-                '{{%matrixinventory_inventory}}',
-                'some_field',
+                '{{%matrixinventory_matrixlist}}',
+                'matrixHandle',
                 true
             ),
-            '{{%matrixinventory_inventory}}',
-            'some_field',
+            '{{%matrixinventory_matrixlist}}',
+            'matrixHandle',
+            true
+        );
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%matrixinventory_matrixblocks}}',
+                'matrixHandle',
+                true
+            ),
+            '{{%matrixinventory_matrixblocks}}',
+            'matrixHandle',
             true
         );
         // Additional commands depending on the db driver
@@ -152,13 +181,23 @@ class Install extends Migration
      */
     protected function addForeignKeys()
     {
-    // matrixinventory_inventory table
+    // matrixinventory_matrixlist table
         $this->addForeignKey(
-            $this->db->getForeignKeyName('{{%matrixinventory_inventory}}', 'siteId'),
-            '{{%matrixinventory_inventory}}',
+            $this->db->getForeignKeyName('{{%matrixinventory_matrixlist}}', 'siteId'),
+            '{{%matrixinventory_matrixlist}}',
             'siteId',
             '{{%sites}}',
             'id',
+            'CASCADE',
+            'CASCADE'
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName('{{%matrixinventory_matrixblock}}', 'siteId'),
+            '{{%matrixinventory_matrixblock}}',
+            'matrixHandle',
+            '{{%matrixinventory_matrixlist}}',
+            'matrixHandle',
             'CASCADE',
             'CASCADE'
         );
@@ -180,7 +219,8 @@ class Install extends Migration
      */
     protected function removeTables()
     {
-    // matrixinventory_inventory table
-        $this->dropTableIfExists('{{%matrixinventory_inventory}}');
+    // matrixinventory_matrixlist table
+        $this->dropTableIfExists('{{%matrixinventory_matrixlist}}');
+        $this->dropTableIfExists('{{%matrixinventory_matrixblock}}');
     }
 }
