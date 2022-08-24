@@ -75,4 +75,5 @@ class MatrixInventoryVariable
         $result = (new Inventory)->listEntries($handle, $matrixBlock);
         return $result;
     }
+
 }

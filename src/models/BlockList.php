@@ -16,15 +16,13 @@ use Craft;
 use craft\base\Model;
 
 /**
- * MatrixList Model
- *
- * https://craftcms.com/docs/plugins/models
+ * BlockList Model
  *
  * @author    Linnea Hartsuyker
  * @package   MatrixInventory
  * @since     0.0.1
  */
-class MatrixList extends Model
+class BlockList extends Model
 {
     // Public Properties
     // =========================================================================
@@ -34,8 +32,10 @@ class MatrixList extends Model
     public $dateUpdated;
     public $uid;
     public $siteId = 1; 
-    public $matrixName = '';
     public $matrixHandle = '';
+    public $blockHandle = '';
+    public $enabled = true;
+    public $entryId;
 
     // Public Methods
     // =========================================================================
@@ -48,8 +48,9 @@ class MatrixList extends Model
     public function rules()
     {
         return [
-            [['id', 'siteId'], 'integer'],
-            [['matrixName', 'matrixHandle'], 'string'],
+            [['id', 'siteId', 'entryId'], 'integer'],
+            [['matrixHandle', 'blockHandle'], 'string'],
+            [['enabled'], 'boolean'],
             [['dateCreated', 'dateUpdated'], 'datetime', 'format' => 'php:Y-m-d H:i:s'],
         ];
     }

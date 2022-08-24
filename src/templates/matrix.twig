@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="tableview tablepane">
+   <div class="tableview tablepane">
         <table class="data fullwidth">
             <thead>
                 <tr>
@@ -28,11 +28,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for type, count in blockTypes %}
+                {% for type in blockTypes %}
                     <tr>
-                        <td>{{ type }}</td>
-                        <td><a href="entries?handle={{ handle }}&block={{ type }}">{{ count.enabled }}</td>
-                        <td><a href="entries?handle={{ handle }}&block={{ type }}">{{ count.disabled }}</td>
+                        <td>{{ type.blockHandle }}</td>
+                        <td><a href="entries?handle={{ handle }}&block={{ type.blockHandle }}">{{ type.enabled }}</td>
+                        <td><a href="entries?handle={{ handle }}&block={{ type.blockHandle }}">{{ type.entryCount - type.enabled }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

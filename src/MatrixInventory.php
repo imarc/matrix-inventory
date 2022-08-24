@@ -14,6 +14,7 @@ use imarc\matrixinventory\services\Inventory as InventoryService;
 use imarc\matrixinventory\variables\MatrixInventoryVariable;
 use imarc\matrixinventory\models\Settings;
 use imarc\matrixinventory\jobs\MatrixList as MatrixListJob;
+use imarc\matrixinventory\jobs\BlockList as BlockListJob;
 
 use Craft;
 use craft\base\Plugin;
@@ -143,6 +144,9 @@ class MatrixInventory extends Plugin
                     // We were just installed, now index all of the existing matrixes
                     $job = new MatrixListJob();
                     Craft::$app->queue->push($job); 
+
+                    $inventoryService = new InventoryService();
+                    $inventoryService->storeAllMatrixes();
 
                 }
             }

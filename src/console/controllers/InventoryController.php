@@ -11,6 +11,7 @@
 namespace imarc\matrixinventory\console\controllers;
 
 use imarc\matrixinventory\MatrixInventory;
+use imarc\matrixinventory\services\Inventory as InventoryService;
 
 use Craft;
 use yii\console\Controller;
@@ -59,6 +60,9 @@ class InventoryController extends Controller
         $result = 'something';
 
         echo "Welcome to the console InventoryController actionIndex() method\n";
+
+        $inventoryService = new InventoryService();
+        $inventoryService->storeAllMatrixes();
 
         return $result;
     }

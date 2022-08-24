@@ -16,13 +16,13 @@ use Craft;
 use craft\db\ActiveRecord;
 
 /**
- * MatrixList Record
+ * BlockList Record
  *
  * @author    Linnea Hartsuyker
  * @package   MatrixInventory
  * @since     0.0.1
  */
-class MatrixList extends ActiveRecord
+class BlockList extends ActiveRecord
 {
     // Public Static Methods
     // =========================================================================
@@ -32,6 +32,6 @@ class MatrixList extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%matrixinventory_matrixlist}}';
+        return '{{%matrixinventory_matrixblocks}}';
     }
 }

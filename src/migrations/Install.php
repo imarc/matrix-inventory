@@ -128,8 +128,8 @@ class Install extends Migration
                     'siteId' => $this->integer()->notNull(),
                     'matrixHandle' => $this->string(255)->notNull()->defaultValue(''),
                     'blockHandle' => $this->string(255)->notNull()->defaultValue(''),
-                    'disabledEntries' => $this->integer()->notNull(),
-                    'enabledEntries' => $this->integer()->notNull()
+                    'enabled' => $this->boolean()->notNull(),
+                    'entryId' => $this->integer()->notNull()
                 ]
                 );
         }
@@ -155,16 +155,7 @@ class Install extends Migration
             'matrixHandle',
             true
         );
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%matrixinventory_matrixblocks}}',
-                'matrixHandle',
-                true
-            ),
-            '{{%matrixinventory_matrixblocks}}',
-            'matrixHandle',
-            true
-        );
+        
         // Additional commands depending on the db driver
         switch ($this->driver) {
             case DbConfig::DRIVER_MYSQL:
@@ -192,15 +183,15 @@ class Install extends Migration
             'CASCADE'
         );
 
-        $this->addForeignKey(
-            $this->db->getForeignKeyName('{{%matrixinventory_matrixblock}}', 'siteId'),
-            '{{%matrixinventory_matrixblock}}',
+        /*$this->addForeignKey(
+            $this->db->getForeignKeyName('{{%matrixinventory_matrixblocks}}', 'siteId'),
+            '{{%matrixinventory_matrixblocks}}',
             'matrixHandle',
             '{{%matrixinventory_matrixlist}}',
             'matrixHandle',
             'CASCADE',
             'CASCADE'
-        );
+        ); */
     }
 
     /**
@@ -221,6 +212,6 @@ class Install extends Migration
     {
     // matrixinventory_matrixlist table
         $this->dropTableIfExists('{{%matrixinventory_matrixlist}}');
-        $this->dropTableIfExists('{{%matrixinventory_matrixblock}}');
+        $this->dropTableIfExists('{{%matrixinventory_matrixblocks}}');
     }
 }

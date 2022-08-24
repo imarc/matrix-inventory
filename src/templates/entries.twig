@@ -17,6 +17,7 @@
     <p><a href="matrix?handle={{ handle }}">< Back to Blocks in {{ handle }}</a></p>
 {% endblock %}
 {% block content %}
+    {#{{ entries|json_encode }}#}
     <div class="tableview tablepane">
         <table class="data fullwidth">
             <thead>
@@ -28,7 +29,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% for entry in entries %}
+                {% for entryId in entries %}
+                    {% set entry = craft.entries.anyStatus.id(entryId).one %}
                     <tr>
                         <td>{{ entry.section }}</td>
                         <td><a href="{{ entry.url }}">{{ entry.title }}</a></td>

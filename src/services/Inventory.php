@@ -12,14 +12,18 @@ namespace imarc\matrixinventory\services;
 
 use imarc\matrixinventory\MatrixInventory;
 use imarc\matrixinventory\records\MatrixList as MatrixListRecord;
+use imarc\matrixinventory\records\BlockList as BlockListRecord;
 use imarc\matrixinventory\models\MatrixList as MatrixListModel;
-use imarc\matrixinventory\jobs\MatrixLIst as MatrixListJob;
+use imarc\matrixinventory\models\BlockList as BlockListModel;
+use imarc\matrixinventory\jobs\BlockList as BlockListJob;
 
 use Craft;
+use Craft\db\Query;
 use craft\base\Component;
 use craft\elements\Entry;
 use craft\elements\MatrixBlock;
 
+use DateTime;
 /**
  * Inventory Service
  *
@@ -60,21 +64,18 @@ class Inventory extends Component
 
     public function listAllMatrixes()
     {
-        //$matrixBlock = MatrixBlock::find()->limit(10)->one();
         $returnString = "";
         $sections = Craft::$app->sections->allSections;
 
         $inventory = [];
         
         foreach ($sections as $section) {
-            //$returnString .= "Section: " . $section->handle . "<br/><br/>";
             $entries = Entry::find()->section($section->handle)->all();
             foreach ($entries as $entry) {
                 $entryFields = $entry->getFieldLayout()->getFields();
                 foreach ($entryFields as $fieldLayout) {
                     $field = Craft::$app->fields->getFieldById($fieldLayout->id);
                     if (get_class($field) == 'craft\\fields\\Matrix') {
-                        //$returnString .= "Field: " . $field->handle . "<br/><br/>";
                         if (!array_key_exists($field->handle, $inventory)) {
                             $inventory[$field->handle] = [];
                         }
@@ -96,7 +97,6 @@ class Inventory extends Component
         foreach ($inventory as $key => $val) {
             ksort($val);
             $inventory[$key] = $val;
-            //$returnString .= $key . " = " . json_encode(ksort($val)) . "<br/><br/>";
         }
 
         $matrixBlock = MatrixBlock::find()->limit(10)->one();
@@ -110,56 +110,69 @@ class Inventory extends Component
 
     }
 
-    /**
-     * TO DO: Make this show disabled and enabled
-     */
+    public function storeAllMatrixes()
+    {
+        $sections = Craft::$app->sections->allSections;
+        foreach ($sections as $section) {
+            $job = new BlockListJob();
+            $job->setSection($section);
+            Craft::$app->queue->push($job);
+        }
+    }
+    
 
-    public function listBlockTypes($matrixHandle = null, $siteHandle = null) {
-        $blockTypes = null;
-        $inventory = [];
-        if ($matrixHandle) {
-            $field = Craft::$app->fields->getFieldByHandle($matrixHandle);
-            if ($field) {
-                $blockTypes = $field->blockTypes;
-                foreach ($blockTypes as $block) {
-                    $inventory[$block->handle]["enabled"] = 0;
-                    $inventory[$block->handle]["disabled"] = 0;
-                }
-                if ($blockTypes) {
-                    $sections = Craft::$app->sections->allSections;
-                    foreach ($sections as $section) {
-                        if ($siteHandle) {
-                            $entries = Entry::find()->section($section->handle)->anyStatus()->site($siteHandle)->all();
-                        } else {
-                            $entries = Entry::find()->section($section->handle)->anyStatus()->all();
-                        }
-                        foreach ($entries as $entry) {
-                            $entryFields = $entry->getFieldLayout()->getFields();
-                            foreach ($entryFields as $fieldLayout) {
-                                $field = Craft::$app->fields->getFieldById($fieldLayout->id);
-                                if (get_class($field) == 'craft\\fields\\Matrix' && $field->handle == $matrixHandle) {
-                                    $matrixBlocks = $entry->getFieldValue($field->handle);
-                                    foreach ($matrixBlocks as $block) {
-                                        if (array_key_exists($block->type->handle, $inventory)){
-                                            if ($entry->status == 'live') {
-                                                $inventory[$block->type->handle]["enabled"] += 1;
-                                            } else {
-                                                $inventory[$block->type->handle]["disabled"] += 1;
-                                            }
-                                        } 
-                                        
-                                    }
-                                    
-                                }
-                            }
+    public function storeSectionMatrixes($section) {
+        if ($section) {
+            $entries = Entry::find()->section($section->handle)->anyStatus()->all();
+            foreach ($entries as $entry) {
+
+                $entryFields = $entry->getFieldLayout()->getFields();
+                foreach ($entryFields as $fieldLayout) {
+                    $field = Craft::$app->fields->getFieldById($fieldLayout->id);
+                    if (get_class($field) == 'craft\\fields\\Matrix') {
+                        $matrixBlocks = $entry->getFieldValue($field->handle);
+                        foreach ($matrixBlocks as $block) {
+                            $model = new BlockListModel();
+
+                            $blockRecord = new BlockListRecord();
+                            if ($entry->status == 'live') {
+                                $model->enabled = true;
+                            } else {
+                                $model->enabled = false;
+                            } 
+                            $now = new DateTime();
+                            $model->dateCreated = $now->format('Y-m-d H:i:s');
+                            $model->dateUpdated = $now->format('Y-m-d H:i:s');
+
+                            $model->matrixHandle = $field->handle;
+                            $model->blockHandle = $block->type->handle;
+                            $model->entryId = $entry->id;
+                            $model->siteId = $entry->siteId;
+                            Craft::trace("storeAllMatrixes model:" . json_encode($model->getAttributes()));
+                            $blockRecord->setAttributes($model->getAttributes(), false);
+                            $blockRecord->save();
                         }
                     }
-            
                 }
             }
         }
-        ksort($inventory);
-        return $inventory;
+    }
+
+    public function listBlockTypes($matrixHandle = null, $siteHandle = null) {
+        $blockList = [];
+
+        if ($matrixHandle) {
+
+            $blockList = (new Query())
+                ->select(['blockHandle', 'count(entryId) as entryCount', 'sum(enabled) as enabled'])
+                ->from('{{%matrixinventory_matrixblocks}}')
+                ->where(['matrixHandle' => $matrixHandle])
+                ->groupBy('blockHandle')
+                ->all();
+    
+        }
+        return $blockList;
+
     }
 
     public function listMatrixFields() {
@@ -198,30 +211,20 @@ class Inventory extends Component
     }
 
     public function listEntries($handle = null, $matrixBlock = null) {
-        $entries = [];
-        $allEntries = Entry::find()->anyStatus()->all();
+        $models = [];
         if ($matrixBlock && $handle) {
-            //return "Here";
-            foreach ($allEntries as $entry) {
-                $entryFields = $entry->getFieldLayout()->getFields();
-                foreach ($entryFields as $fieldLayout) {
-                    $field = Craft::$app->fields->getFieldById($fieldLayout->id);
-                    if (get_class($field) == 'craft\\fields\\Matrix' && $field->handle == $handle) {
-                        //return $field;
-                        $matrixBlocks = $entry->getFieldValue($field->handle);
-                        foreach ($matrixBlocks as $block) {
-                            if ($block->type == $matrixBlock) {
-                                if (!in_array($entry, $entries)) {
-                                    array_push($entries, $entry);
-                                }
-                            }
-                        }
-                    }
-                }
-            
+            $blockRecords = (new BlockListRecord())->find()
+                            ->where(['blockHandle' => $matrixBlock, 
+                                    'matrixHandle' => $handle])->all();
+            foreach ($blockRecords as $record) {
+                $model = new BlockListModel();
+                $model->setAttributes($record->getAttributes(), false);
+                $models[] = $model;
             }
         }
-        return $entries;
+        return $models;
+
+
     }
 
 }

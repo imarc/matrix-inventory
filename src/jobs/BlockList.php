@@ -23,7 +23,7 @@ use craft\queue\BaseJob;
  * @package   MatrixInventory
  * @since     0.0.1
  */
-class MatrixList extends BaseJob
+class BlockList extends BaseJob
 {
     // Public Properties
     // =========================================================================
@@ -33,15 +33,19 @@ class MatrixList extends BaseJob
      *
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    protected $section = null;
 
     // Public Methods
     // =========================================================================
 
+    public function setSection($section) {
+        $this->section = $section;
+    }
+    
     public function execute($queue)
     {
         $inventoryService = new InventoryService();
-        $inventoryService->storeMatrixFields();
+        $inventoryService->storeSectionMatrixes($this->section);
     }
 
     // Protected Methods
@@ -54,6 +58,6 @@ class MatrixList extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return Craft::t('matrix-inventory', 'Create Matrix List');
+        return Craft::t('matrix-inventory', 'Create Block List');
     }
 }
