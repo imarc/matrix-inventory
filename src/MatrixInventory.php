@@ -19,7 +19,10 @@ use imarc\matrixinventory\jobs\BlockList as BlockListJob;
 use Craft;
 use craft\base\Plugin;
 use craft\services\Plugins;
+use craft\services\Elements;
 use craft\events\PluginEvent;
+use craft\events\ElementEvent;
+use craft\elements\Entry;
 use craft\web\twig\variables\CraftVariable;
 use craft\console\Application as ConsoleApplication;
 use craft\web\UrlManager;
@@ -178,6 +181,8 @@ class MatrixInventory extends Plugin
             ),
             __METHOD__
         );
+
+        $this->configureHooks();
     }
 
     // Protected Methods
@@ -207,5 +212,19 @@ class MatrixInventory extends Plugin
                 'settings' => $this->getSettings()
             ]
         );
+    }
+
+    // Private Methods
+    
+    private function configureHooks() {
+        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
+            if ($event->element instanceof Entry) {               
+                $entry = $event->element;
+                if (!$entry->isProvisionalDraft) {
+                    $inventoryService = new InventoryService();
+                    $inventoryService->updateEntryMatrixes($entry);
+                }
+            }
+        });
     }
 }

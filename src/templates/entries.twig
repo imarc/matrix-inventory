@@ -29,14 +29,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% for entryId in entries %}
-                    {% set entry = craft.entries.anyStatus.id(entryId).one %}
-                    <tr>
-                        <td>{{ entry.section }}</td>
-                        <td><a href="{{ entry.url }}">{{ entry.title }}</a></td>
-                        <td><a href="{{ entry.cpEditUrl }}">Edit Entry</a></td>
-                        <td><span class="status {{ entry.status }}"></span></td>
-                    </tr>
+                {% for entryRecord in entries %}
+                    {% set entry = craft.entries.anyStatus.id(entryRecord.entryId).one %}
+                    {% if entry %}
+                        <tr>
+                            <td>{{ entry.section }}</td>
+                            <td><a href="{{ entry.url }}">{{ entry.title }}</a></td>
+                            <td><a href="{{ entry.cpEditUrl }}">Edit Entry</a></td>
+                            <td><span class="status {{ entry.status }}"></span></td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td>{{ entryRecord.entryId }}</td>
+                            <td>NULL</td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

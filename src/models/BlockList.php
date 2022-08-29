@@ -36,6 +36,7 @@ class BlockList extends Model
     public $blockHandle = '';
     public $enabled = true;
     public $entryId;
+    public $blockId;
 
     // Public Methods
     // =========================================================================
@@ -48,7 +49,7 @@ class BlockList extends Model
     public function rules()
     {
         return [
-            [['id', 'siteId', 'entryId'], 'integer'],
+            [['id', 'siteId', 'entryId', 'blockId'], 'integer'],
             [['matrixHandle', 'blockHandle'], 'string'],
             [['enabled'], 'boolean'],
             [['dateCreated', 'dateUpdated'], 'datetime', 'format' => 'php:Y-m-d H:i:s'],

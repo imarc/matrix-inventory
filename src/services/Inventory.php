@@ -146,6 +146,7 @@ class Inventory extends Component
 
                             $model->matrixHandle = $field->handle;
                             $model->blockHandle = $block->type->handle;
+                            $model->blockId = $block->id;
                             $model->entryId = $entry->id;
                             $model->siteId = $entry->siteId;
                             Craft::trace("storeAllMatrixes model:" . json_encode($model->getAttributes()));
@@ -153,6 +154,46 @@ class Inventory extends Component
                             $blockRecord->save();
                         }
                     }
+                }
+            }
+        }
+    }
+
+    public function updateEntryMatrixes($entry) {
+        $entryFields = $entry->getFieldLayout()->getFields();
+        foreach ($entryFields as $fieldLayout) {
+            $field = Craft::$app->fields->getFieldById($fieldLayout->id);
+            if (get_class($field) == 'craft\\fields\\Matrix') {
+                $matrixBlocks = $entry->getFieldValue($field->handle);
+                $blockRecords = (new BlockListRecord())->find()
+                                ->where([
+                                    'entryId' => $entry->id,
+                                    'siteId' => $entry->siteId
+                                ])->all();
+                foreach ($blockRecords as $record) {
+                    $record->delete();
+                }
+                foreach ($matrixBlocks as $block) {
+                    $blockRecord = new BlockListRecord();
+
+                    $model = new BlockListModel();
+                    $model->setAttributes($blockRecord->getAttributes(), false);
+                    if ($entry->status == 'live') {
+                        $model->enabled = true;
+                    } else {
+                        $model->enabled = false;
+                    } 
+                    $now = new DateTime();
+                    $model->dateCreated = $now->format('Y-m-d H:i:s');
+                    $model->dateUpdated = $now->format('Y-m-d H:i:s');
+
+                    $model->matrixHandle = $field->handle;
+                    $model->blockHandle = $block->type->handle;
+                    $model->entryId = $entry->id;
+                    $model->siteId = $entry->siteId;
+                    $model->blockId = $block->id;
+                    $blockRecord->setAttributes($model->getAttributes(), false);
+                    $blockRecord->save();
                 }
             }
         }
