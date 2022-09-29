@@ -14,6 +14,7 @@
 {% set title = 'Entries with ' ~ handle ~ ' - ' ~ blockName ~ ' block' %}
 
 {% block header %}
+    <h1>{{ title }}</h1>
     <p><a href="matrix?handle={{ handle }}">< Back to Blocks in {{ handle }}</a></p>
 {% endblock %}
 {% block content %}
