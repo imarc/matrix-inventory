@@ -11,6 +11,8 @@
 namespace imarc\matrixinventory\controllers;
 
 use imarc\matrixinventory\MatrixInventory;
+use imarc\matrixinventory\services\Inventory as InventoryService;
+use imarc\matrixinventory\jobs\MatrixList as MatrixListJob;
 
 use imarc\matrixinventory\services\Inventory;
 
@@ -82,5 +84,16 @@ class InventoryController extends Controller
         $result = 'Welcome to the InventoryController actionDoSomething() method';
 
         return $result;
+    }
+
+    public function actionReindex()
+    {
+        $job = new MatrixListJob();
+        Craft::$app->queue->push($job); 
+
+        $inventoryService = new InventoryService();
+        $inventoryService->storeAllMatrixes();
+
+        return;
     }
 }

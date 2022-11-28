@@ -1,0 +1,18 @@
+
+{% import "_includes/forms" as forms %}
+
+<h1>Re-Index Matrixes</h1>
+
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@imarc/matrixinventory/assetbundles/matrixinventory/dist', true) ~ '/img/MatrixInventoryUtility-icon.svg' %}
+
+<div style="margin: 10px 0;">
+    <form class="utility" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="matrix-inventory/inventory/reindex">
+        <input type="hidden" name="utility" value="1">
+
+        {{ csrfInput() }}
+
+        <input type="submit" class="btn submit" value="Re-Index All Matrixes">
+    </form>
+</div>
+

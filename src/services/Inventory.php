@@ -24,6 +24,8 @@ use craft\elements\Entry;
 use craft\elements\MatrixBlock;
 
 use DateTime;
+
+use Exception;
 /**
  * Inventory Service
  *
@@ -119,13 +121,25 @@ class Inventory extends Component
             Craft::$app->queue->push($job);
         }
     }
+
+    public function removeAllMatrixes()
+    {
+        //write code here
+    }
     
 
     public function storeSectionMatrixes($section) {
         if ($section) {
             $entries = Entry::find()->section($section->handle)->anyStatus()->all();
             foreach ($entries as $entry) {
-
+                $blockRecords = (new BlockListRecord())->find()
+                    ->where([
+                        'entryId' => $entry->id,
+                        'siteId' => $entry->siteId
+                    ])->all();
+                foreach ($blockRecords as $record) {
+                    $record->delete();
+                }
                 $entryFields = $entry->getFieldLayout()->getFields();
                 foreach ($entryFields as $fieldLayout) {
                     $field = Craft::$app->fields->getFieldById($fieldLayout->id);
@@ -177,7 +191,6 @@ class Inventory extends Component
                     $blockRecord = new BlockListRecord();
 
                     $model = new BlockListModel();
-                    $model->setAttributes($blockRecord->getAttributes(), false);
                     if ($entry->status == 'live') {
                         $model->enabled = true;
                     } else {
@@ -192,8 +205,11 @@ class Inventory extends Component
                     $model->entryId = $entry->id;
                     $model->siteId = $entry->siteId;
                     $model->blockId = $block->id;
-                    $blockRecord->setAttributes($model->getAttributes(), false);
-                    $blockRecord->save();
+                    if ($model->blockId) {
+                        $blockRecord->setAttributes($model->getAttributes(), false);
+                        $blockRecord->save();
+                    }
+                    $i++;
                 }
             }
         }
@@ -234,6 +250,16 @@ class Inventory extends Component
     public function storeMatrixFields() {
         $fields = Craft::$app->fields->getAllFields(false);
         $handles = [];
+        foreach ($fields as $field) {
+            $matrixRecords = (new MatrixListRecord())->find()
+                ->where([
+                    'matrixName' => $field->name,
+                    'matrixHandle' => $field->handle
+                ])->all();
+            foreach ($matrixRecords as $record) {
+                $record->delete();
+            }
+        }
         foreach ($fields as $field) {
             if (get_class($field) == 'craft\\fields\\Matrix') {
                 if (!in_array($field->handle, $handles)) {

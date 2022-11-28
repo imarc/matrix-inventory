@@ -12,14 +12,17 @@ namespace imarc\matrixinventory;
 
 use imarc\matrixinventory\services\Inventory as InventoryService;
 use imarc\matrixinventory\variables\MatrixInventoryVariable;
+use imarc\matrixinventory\utilities\MatrixInventoryUtility;
 use imarc\matrixinventory\models\Settings;
 use imarc\matrixinventory\jobs\MatrixList as MatrixListJob;
 use imarc\matrixinventory\jobs\BlockList as BlockListJob;
+use craft\helpers\ElementHelper;
 
 use Craft;
 use craft\base\Plugin;
 use craft\services\Plugins;
 use craft\services\Elements;
+use craft\services\Utilities;
 use craft\events\PluginEvent;
 use craft\events\ElementEvent;
 use craft\elements\Entry;
@@ -27,6 +30,7 @@ use craft\web\twig\variables\CraftVariable;
 use craft\console\Application as ConsoleApplication;
 use craft\web\UrlManager;
 use craft\events\RegisterUrlRulesEvent;
+use craft\events\RegisterComponentTypesEvent;
 
 use yii\base\Event;
 
@@ -127,6 +131,15 @@ class MatrixInventory extends Plugin
             }
         );
 
+        // Register our utilities
+        Event::on(
+            Utilities::class,
+            Utilities::EVENT_REGISTER_UTILITY_TYPES,
+            function (RegisterComponentTypesEvent $event) {
+                $event->types[] = MatrixInventoryUtility::class;
+            }
+        );
+
          // Register our variables
          Event::on(
             CraftVariable::class,
@@ -220,10 +233,13 @@ class MatrixInventory extends Plugin
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
             if ($event->element instanceof Entry) {               
                 $entry = $event->element;
-                if (!$entry->isProvisionalDraft) {
+                if (ElementHelper::isDraftOrRevision($entry)) {
+                    return;
+                } else {
                     $inventoryService = new InventoryService();
                     $inventoryService->updateEntryMatrixes($entry);
                 }
+                
             }
         });
     }
