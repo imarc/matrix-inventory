@@ -4,7 +4,7 @@
 
 {% set showSiteMenu = false %}
 
-{% set sections = craft.sections.getAllSections() %}
+{% set sections = craft.app.section.allSections() %}
 
 {% set handle = craft.app.request.getQueryParam('handle') %}
 
