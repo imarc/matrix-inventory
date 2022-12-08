@@ -77,7 +77,7 @@ class Inventory extends Component
                 $entryFields = $entry->getFieldLayout()->getFields();
                 foreach ($entryFields as $fieldLayout) {
                     $field = Craft::$app->fields->getFieldById($fieldLayout->id);
-                    if (get_class($field) == 'craft\\fields\\Matrix') {
+                    if ($field::class == 'craft\\fields\\Matrix') {
                         if (!array_key_exists($field->handle, $inventory)) {
                             $inventory[$field->handle] = [];
                         }
@@ -102,12 +102,12 @@ class Inventory extends Component
         }
 
         $matrixBlock = MatrixBlock::find()->limit(10)->one();
-        $returnString .= json_encode($matrixBlock) . '<br/><br/>';
+        $returnString .= json_encode($matrixBlock, JSON_THROW_ON_ERROR) . '<br/><br/>';
 
         $field = Craft::$app->fields->getFieldById($matrixBlock->fieldId);
-        $returnString .= json_encode($field->blockTypes) . '<br/><br/>';
+        $returnString .= json_encode($field->blockTypes, JSON_THROW_ON_ERROR) . '<br/><br/>';
 
-        $returnString .= json_encode($inventory);
+        $returnString .= json_encode($inventory, JSON_THROW_ON_ERROR);
         return $returnString;
 
     }
@@ -143,7 +143,7 @@ class Inventory extends Component
                 $entryFields = $entry->getFieldLayout()->getFields();
                 foreach ($entryFields as $fieldLayout) {
                     $field = Craft::$app->fields->getFieldById($fieldLayout->id);
-                    if (get_class($field) == 'craft\\fields\\Matrix') {
+                    if ($field::class == 'craft\\fields\\Matrix') {
                         $matrixBlocks = $entry->getFieldValue($field->handle);
                         foreach ($matrixBlocks as $block) {
                             $model = new BlockListModel();
@@ -163,7 +163,7 @@ class Inventory extends Component
                             $model->blockId = $block->id;
                             $model->entryId = $entry->id;
                             $model->siteId = $entry->siteId;
-                            Craft::trace("storeAllMatrixes model:" . json_encode($model->getAttributes()));
+                            Craft::trace("storeAllMatrixes model:" . json_encode($model->getAttributes(), JSON_THROW_ON_ERROR));
                             $blockRecord->setAttributes($model->getAttributes(), false);
                             $blockRecord->save();
                         }
@@ -177,7 +177,7 @@ class Inventory extends Component
         $entryFields = $entry->getFieldLayout()->getFields();
         foreach ($entryFields as $fieldLayout) {
             $field = Craft::$app->fields->getFieldById($fieldLayout->id);
-            if (get_class($field) == 'craft\\fields\\Matrix') {
+            if ($field::class == 'craft\\fields\\Matrix') {
                 $matrixBlocks = $entry->getFieldValue($field->handle);
                 $blockRecords = (new BlockListRecord())->find()
                                 ->where([
@@ -261,7 +261,7 @@ class Inventory extends Component
             }
         }
         foreach ($fields as $field) {
-            if (get_class($field) == 'craft\\fields\\Matrix') {
+            if ($field::class == 'craft\\fields\\Matrix') {
                 if (!in_array($field->handle, $handles)) {
                     array_push($handles, $field->handle);
                     $model = new MatrixListModel();

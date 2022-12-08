@@ -147,11 +147,7 @@ class Install extends Migration
     {
     // matrixinventory_matrixlist table
         $this->createIndex(
-            $this->db->getIndexName(
-                '{{%matrixinventory_matrixlist}}',
-                'matrixHandle',
-                true
-            ),
+            $this->db->getIndexName(),
             '{{%matrixinventory_matrixlist}}',
             'matrixHandle',
             true
@@ -175,7 +171,7 @@ class Install extends Migration
     {
     // matrixinventory_matrixlist table
         $this->addForeignKey(
-            $this->db->getForeignKeyName('{{%matrixinventory_matrixlist}}', 'siteId'),
+            $this->db->getForeignKeyName(),
             '{{%matrixinventory_matrixlist}}',
             'siteId',
             '{{%sites}}',
