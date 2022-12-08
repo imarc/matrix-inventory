@@ -73,7 +73,7 @@ class MatrixInventory extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '0.0.1';
+    public $schemaVersion = '0.0.2';
 
     /**
      * Set to `true` if the plugin should have a settings view in the control panel.
