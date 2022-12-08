@@ -54,7 +54,7 @@ class Inventory extends Component
      *
      * @return mixed
      */
-    public function exampleService()
+    public function exampleService(): string|array
     {
         $result = 'something';
         // Check our Plugin's settings for `someAttribute`
@@ -64,7 +64,7 @@ class Inventory extends Component
         return $result;
     }
 
-    public function listAllMatrixes()
+    public function listAllMatrixes(): string
     {
         $returnString = "";
         $sections = Craft::$app->sections->allSections;
@@ -74,7 +74,7 @@ class Inventory extends Component
         foreach ($sections as $section) {
             $entries = Entry::find()->section($section->handle)->all();
             foreach ($entries as $entry) {
-                $entryFields = $entry->getFieldLayout()->getFields();
+                $entryFields = $entry->getFieldLayout()->getCustomFields();
                 foreach ($entryFields as $fieldLayout) {
                     $field = Craft::$app->fields->getFieldById($fieldLayout->id);
                     if ($field::class == 'craft\\fields\\Matrix') {
@@ -115,10 +115,13 @@ class Inventory extends Component
     public function storeAllMatrixes()
     {
         $sections = Craft::$app->sections->allSections;
+        //$this->storeMatrixFields();
         foreach ($sections as $section) {
             $job = new BlockListJob();
             $job->setSection($section);
-            Craft::$app->queue->push($job);
+            \craft\helpers\Queue::push($job);
+            //$this->storeSectionMatrixes($section);
+            //break;
         }
     }
 
@@ -140,7 +143,7 @@ class Inventory extends Component
                 foreach ($blockRecords as $record) {
                     $record->delete();
                 }
-                $entryFields = $entry->getFieldLayout()->getFields();
+                $entryFields = $entry->getFieldLayout()->getCustomFields();
                 foreach ($entryFields as $fieldLayout) {
                     $field = Craft::$app->fields->getFieldById($fieldLayout->id);
                     if ($field::class == 'craft\\fields\\Matrix') {
@@ -215,7 +218,7 @@ class Inventory extends Component
         }
     }
 
-    public function listBlockTypes($matrixHandle = null, $siteHandle = null) {
+    public function listBlockTypes($matrixHandle = null, $siteHandle = null): array {
         $blockList = [];
 
         if ($matrixHandle) {
@@ -232,7 +235,7 @@ class Inventory extends Component
 
     }
 
-    public function listMatrixFields() {
+    public function listMatrixFields(): array {
         $records = (new MatrixListRecord())->find()->all();
 
         $models = [];
@@ -247,8 +250,8 @@ class Inventory extends Component
 
     }
 
-    public function storeMatrixFields() {
-        $fields = Craft::$app->fields->getAllFields(false);
+    public function storeMatrixFields(): bool {
+        /*$fields = Craft::$app->fields->getAllFields(false);
         $handles = [];
         foreach ($fields as $field) {
             $matrixRecords = (new MatrixListRecord())->find()
@@ -273,11 +276,12 @@ class Inventory extends Component
                 }
                 
             }
-        }
+        }*/
+        Craft::trace('storing matrix fields');
         return true;
     }
 
-    public function listEntries($handle = null, $matrixBlock = null) {
+    public function listEntries($handle = null, $matrixBlock = null): array {
         $models = [];
         if ($matrixBlock && $handle) {
             $blockRecords = (new BlockListRecord())->find()

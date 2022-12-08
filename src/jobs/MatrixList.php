@@ -33,12 +33,12 @@ class MatrixList extends BaseJob
      *
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    public string $someAttribute = 'Some Default';
 
     // Public Methods
     // =========================================================================
 
-    public function execute($queue)
+    public function execute($queue): void
     {
         $inventoryService = new InventoryService();
         $inventoryService->storeMatrixFields();

@@ -42,7 +42,7 @@ class BlockList extends BaseJob
         $this->section = $section;
     }
     
-    public function execute($queue)
+    public function execute($queue): void
     {
         $inventoryService = new InventoryService();
         $inventoryService->storeSectionMatrixes($this->section);

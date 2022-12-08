@@ -52,8 +52,8 @@ class InventoryController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = ['index', 'do-something'];
-
+    protected array|bool|int $allowAnonymous = ['index', 'do-something'];
+    
     // Public Methods
     // =========================================================================
 
@@ -63,7 +63,7 @@ class InventoryController extends Controller
      *
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex(): string|array
     {
         set_time_limit(0);
         ini_set('memory_limit', '8024M');
@@ -79,14 +79,14 @@ class InventoryController extends Controller
      *
      * @return mixed
      */
-    public function actionDoSomething()
+    public function actionDoSomething(): string|array
     {
         $result = 'Welcome to the InventoryController actionDoSomething() method';
 
         return $result;
     }
 
-    public function actionReindex()
+    public function actionReindex(): void
     {
         $job = new MatrixListJob();
         Craft::$app->queue->push($job); 
@@ -94,6 +94,5 @@ class InventoryController extends Controller
         $inventoryService = new InventoryService();
         $inventoryService->storeAllMatrixes();
 
-        return;
     }
 }

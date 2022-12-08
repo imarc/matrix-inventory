@@ -44,7 +44,7 @@ class MatrixInventoryUtility extends Utility
      *
      * @return string|null The path to the utility SVG icon
      */
-    public static function iconPath()
+    public static function iconPath(): string|null
     {
         return Craft::getAlias("@imarc/matrixinventory/assetbundles/matrixinventoryutility/dist/img/MatrixInventoryUtility-icon.svg");
     }

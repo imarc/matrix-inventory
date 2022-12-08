@@ -55,7 +55,7 @@ class InventoryController extends Controller
      *
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex(): string|array
     {
         $result = 'something';
 
@@ -75,7 +75,7 @@ class InventoryController extends Controller
      *
      * @return mixed
      */
-    public function actionDoSomething()
+    public function actionDoSomething(): string|array
     {
         $result = 'something';
 

@@ -159,10 +159,10 @@ class MatrixInventory extends Plugin
                 if ($event->plugin === $this) {
                     // We were just installed, now index all of the existing matrixes
                     $job = new MatrixListJob();
-                    Craft::$app->queue->push($job); 
+                    \craft\helpers\Queue::push($job); 
 
-                    $inventoryService = new InventoryService();
-                    $inventoryService->storeAllMatrixes();
+                    //$inventoryService = new InventoryService();
+                    //$inventoryService->storeAllMatrixes();
 
                 }
             }
