@@ -73,21 +73,21 @@ class MatrixInventory extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '0.0.2';
+    public string $schemaVersion = '0.0.2';
 
     /**
      * Set to `true` if the plugin should have a settings view in the control panel.
      *
      * @var bool
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     /**
      * Set to `true` if the plugin should have its own section (main nav item) in the control panel.
      *
      * @var bool
      */
-    public $hasCpSection = true;
+    public bool $hasCpSection = true;
 
     // Public Methods
     // =========================================================================
