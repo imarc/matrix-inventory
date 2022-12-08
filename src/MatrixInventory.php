@@ -206,7 +206,7 @@ class MatrixInventory extends Plugin
      *
      * @return \craft\base\Model|null
      */
-    protected function createSettingsModel(): ?\craft\base\Model
+    protected function createSettingsModel(): ?Settings
     {
         return new Settings();
     }
