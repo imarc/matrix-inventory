@@ -209,7 +209,6 @@ class Inventory extends Component
                         $blockRecord->setAttributes($model->getAttributes(), false);
                         $blockRecord->save();
                     }
-                    $i++;
                 }
             }
         }
