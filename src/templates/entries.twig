@@ -10,8 +10,8 @@
 
 {% set blockName = craft.app.request.getQueryParam('block') %}
 
-{% set entries = craft.matrixInventory.listEntries(handle, blockName) %}
-{% set title = 'Entries with ' ~ handle ~ ' - ' ~ blockName ~ ' block' %}
+{% set elements = craft.matrixInventory.listElements(handle, blockName) %}
+{% set title = 'Elements with ' ~ handle ~ ' - ' ~ blockName ~ ' block' %}
 
 {% block header %}
     <h1>{{ title }}</h1>
@@ -23,25 +23,85 @@
         <table class="data fullwidth">
             <thead>
                 <tr>
-                    <th>Section</th>
-                    <th>Entry Title</th>
+                    <th>Type</th>
+                    <th>Section/Group</th>
+                    <th>Element Title</th>
                     <th>Edit</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for entryRecord in entries %}
-                    {% set entry = craft.entries.anyStatus.id(entryRecord.entryId).one %}
-                    {% if entry %}
-                        <tr>
-                            <td>{{ entry.section }}</td>
-                            <td><a href="{{ entry.url }}">{{ entry.title }}</a></td>
-                            <td><a href="{{ entry.cpEditUrl }}">Edit Entry</a></td>
-                            <td><span class="status {{ entry.status }}"></span></td>
-                        </tr>
+                {% for element in elements %}
+                    {% if element.elementType == 'entry' %}
+                        {% set entry = craft.entries.anyStatus.id(element.elementId).one %}
+                        {% if entry %}
+                            <tr>
+                                <td>Entry</td>
+                                <td>{{ entry.section }}</td>
+                                <td><a href="{{ entry.url }}">{{ entry.title }}</a></td>
+                                <td><a href="{{ entry.cpEditUrl }}">Edit Element</a></td>
+                                <td><span class="status {{ entry.status }}"></span></td>
+                            </tr>
+                        {% endif %}
+                    {% elseif element.elementType == 'category' %}
+                        {% set category = craft.categories.anyStatus.id(element.elementId).one %}
+                        {% if category %}
+                            <tr>
+                                <td>Category</td>
+                                <td>{{ category.group }}</td>
+                                <td><a href="{{ category.url }}">{{ category.title }}</a></td>
+                                <td><a href="{{ category.cpEditUrl }}">Edit Element</a></td>
+                                <td><span class="status {{ category.status }}"></span></td>
+                            </tr>
+                        {% endif %}
+                    {% elseif element.elementType == 'asset' %}
+                        {% set asset = craft.assets.anyStatus.id(element.elementId).one %}
+                        {% if asset %}
+                            <tr>
+                                <td>Asset</td>
+                                <td></td>
+                                <td><a href="{{ asset.url }}">{{ asset.title }}</a></td>
+                                <td><a href="{{ asset.cpEditUrl }}">Edit Element</a></td>
+                                <td><span class="status {{ asset.status }}"></span></td>
+                            </tr>
+                        {% endif %}
+                    {% elseif element.elementType == 'tag' %}
+                        {% set tag = craft.tags.anyStatus.id(element.elementId).one %}
+                        {% if tag %}
+                            <tr>
+                                <td>Tag</td>
+                                <td>{{ tag.group}}</td>
+                                <td>{{ tag.title }}</td>
+                                <td><a href="{{ tag.cpEditUrl }}">Edit Element</a></td>
+                                <td><span class="status {{ tag.status }}"></span></td>
+                            </tr>
+                        {% endif %}
+                    {% elseif element.elementType == 'user' %}
+                        {% set user = craft.users.anyStatus.id(element.elementId).one %}
+                        {% if user %}
+                            <tr>
+                                <td>User</td>
+                                <td></td>
+                                <td>{{ user.username }}</td>
+                                <td><a href="{{ user.cpEditUrl }}">Edit Element</a></td>
+                                <td><span class="status {{ user.status }}"></span></td>
+                            </tr>
+                        {% endif %}
+                     {% elseif element.elementType == 'globalset' %}
+                        {% set globalSet = craft.globalSets.anyStatus.id(element.elementId).one %}
+                        {% if globalSet %}
+                            <tr>
+                                <td>Global Set</td>
+                                <td></td>
+                                <td>{{ globalSet.name }}</td>
+                                <td><a href="{{ globalSet.cpEditUrl }}">Edit Element</a></td>
+                                <td><span class="status {{ globalSet.status }}"></span></td>
+                            </tr>
+                        {% endif %}
                     {% else %}
                         <tr>
-                            <td>{{ entryRecord.entryId }}</td>
+                            <td>{{ element.elementType }}
+                            <td>{{ element.elementId }}</td>
                             <td>NULL</td>
                         </tr>
                     {% endif %}

@@ -16,11 +16,17 @@ use imarc\matrixinventory\records\BlockList as BlockListRecord;
 use imarc\matrixinventory\models\MatrixList as MatrixListModel;
 use imarc\matrixinventory\models\BlockList as BlockListModel;
 use imarc\matrixinventory\jobs\BlockList as BlockListJob;
+use imarc\matrixinventory\jobs\BlockElementList as BlockElementJob;
 
 use Craft;
 use Craft\db\Query;
 use craft\base\Component;
 use craft\elements\Entry;
+use craft\elements\Asset;
+use craft\elements\Category;
+use craft\elements\Tag;
+use craft\elements\GlobalSet;
+use craft\elements\User;
 use craft\elements\MatrixBlock;
 
 use DateTime;
@@ -120,6 +126,63 @@ class Inventory extends Component
             $job->setSection($section);
             Craft::$app->queue->push($job);
         }
+        $otherElements = ['category', 'asset', 'tag', 'globalset', 'user'];
+        foreach ($otherElements as $elementType) {
+            $job = new BlockElementJob();
+            $job->setElementType($elementType);
+            Craft::$app->queue->push($job);
+        }        
+    }
+
+    public function storeElementMatrixes($elementType)
+    {
+        $elements = [];
+        if ($elementType == 'category') {
+            $elements = Category::find()->all();
+        } elseif ($elementType == 'asset') {
+            $elements = Asset::find()->all();
+        } elseif ($elementType == 'tag') {
+            $elements = Tag::find()->all();
+        } elseif ($elementType == 'globalset') {
+            $elements = GlobalSet::find()->all();
+        } elseif ($elementType == 'user') {
+            $elements = User::find()->all();
+        }
+        foreach ($elements as $element) {
+            $blockRecords = (new BlockListRecord())->find()
+                ->where([
+                    'elementId' => $element->id,
+                    'siteId' => $element->siteId
+                ])->all();
+            foreach ($blockRecords as $record) {
+                $record->delete();
+            }
+            $entryFields = $element->getFieldLayout()->getFields();
+            foreach ($entryFields as $fieldLayout) {
+                $field = Craft::$app->fields->getFieldById($fieldLayout->id);
+                if (get_class($field) == 'craft\\fields\\Matrix') {
+                    $matrixBlocks = $element->getFieldValue($field->handle);
+                    foreach ($matrixBlocks as $block) {
+                        $model = new BlockListModel();
+
+                        $blockRecord = new BlockListRecord();
+                        $model->enabled = $elementType == 'tag' ? true : $element->enabled;
+                        $now = new DateTime();
+                        $model->dateCreated = $now->format('Y-m-d H:i:s');
+                        $model->dateUpdated = $now->format('Y-m-d H:i:s');
+
+                        $model->matrixHandle = $field->handle;
+                        $model->blockHandle = $block->type->handle;
+                        $model->blockId = $block->id;
+                        $model->elementId = $element->id;
+                        $model->elementType = $elementType;
+                        $model->siteId = $element->siteId;
+                        $blockRecord->setAttributes($model->getAttributes(), false);
+                        $blockRecord->save();
+                    }
+                }
+            }
+        }
     }
 
     public function removeAllMatrixes()
@@ -134,7 +197,7 @@ class Inventory extends Component
             foreach ($entries as $entry) {
                 $blockRecords = (new BlockListRecord())->find()
                     ->where([
-                        'entryId' => $entry->id,
+                        'elementId' => $entry->id,
                         'siteId' => $entry->siteId
                     ])->all();
                 foreach ($blockRecords as $record) {
@@ -149,11 +212,7 @@ class Inventory extends Component
                             $model = new BlockListModel();
 
                             $blockRecord = new BlockListRecord();
-                            if ($entry->status == 'live') {
-                                $model->enabled = true;
-                            } else {
-                                $model->enabled = false;
-                            } 
+                            $model->enabled = $elementType == 'tag' ? true : $element->enabled;
                             $now = new DateTime();
                             $model->dateCreated = $now->format('Y-m-d H:i:s');
                             $model->dateUpdated = $now->format('Y-m-d H:i:s');
@@ -161,9 +220,9 @@ class Inventory extends Component
                             $model->matrixHandle = $field->handle;
                             $model->blockHandle = $block->type->handle;
                             $model->blockId = $block->id;
-                            $model->entryId = $entry->id;
+                            $model->elementId = $entry->id;
+                            $model->elementType = "entry";
                             $model->siteId = $entry->siteId;
-                            Craft::info("storeAllMatrixes model:" . json_encode($model->getAttributes()), __METHOD__);
                             $blockRecord->setAttributes($model->getAttributes(), false);
                             $blockRecord->save();
                         }
@@ -173,16 +232,16 @@ class Inventory extends Component
         }
     }
 
-    public function updateEntryMatrixes($entry) {
-        $entryFields = $entry->getFieldLayout()->getFields();
-        foreach ($entryFields as $fieldLayout) {
+    public function updateElementMatrixes($element) {
+        $elementFields = $element->getFieldLayout()->getFields();
+        foreach ($elementFields as $fieldLayout) {
             $field = Craft::$app->fields->getFieldById($fieldLayout->id);
             if (get_class($field) == 'craft\\fields\\Matrix') {
-                $matrixBlocks = $entry->getFieldValue($field->handle);
+                $matrixBlocks = $element->getFieldValue($field->handle);
                 $blockRecords = (new BlockListRecord())->find()
                                 ->where([
-                                    'entryId' => $entry->id,
-                                    'siteId' => $entry->siteId
+                                    'elementId' => $element->id,
+                                    'siteId' => $element->siteId
                                 ])->all();
                 foreach ($blockRecords as $record) {
                     $record->delete();
@@ -191,7 +250,7 @@ class Inventory extends Component
                     $blockRecord = new BlockListRecord();
 
                     $model = new BlockListModel();
-                    if ($entry->status == 'live') {
+                    if ($element->status == 'live') {
                         $model->enabled = true;
                     } else {
                         $model->enabled = false;
@@ -202,8 +261,22 @@ class Inventory extends Component
 
                     $model->matrixHandle = $field->handle;
                     $model->blockHandle = $block->type->handle;
-                    $model->entryId = $entry->id;
-                    $model->siteId = $entry->siteId;
+                    $model->elementId = $element->id;
+                    if ($element instanceof Entry) {
+                        $model->elementType = "entry";
+                    } elseif ($element instanceof Category) {
+                        $model->elementType = "category";
+                    } elseif ($element instanceof Asset) {
+                        $model->elementType = "asset";
+                    } elseif ($element instanceof Tag) {
+                        $model->elementType = "tag";
+                    } elseif ($element instanceof User) {
+                        $model->elementType = "user";
+                    } elseif ($element instanceof GlobalSet) {
+                        $model->elementType = "globalset";
+                    }
+
+                    $model->siteId = $element->siteId;
                     $model->blockId = $block->id;
                     if ($model->blockId) {
                         $blockRecord->setAttributes($model->getAttributes(), false);
@@ -220,7 +293,7 @@ class Inventory extends Component
         if ($matrixHandle) {
 
             $blockList = (new Query())
-                ->select(['blockHandle', 'count(entryId) as entryCount', 'sum(enabled) as enabled'])
+                ->select(['blockHandle', 'count(elementId) as entryCount', 'sum(enabled) as enabled'])
                 ->from('{{%matrixinventory_matrixblocks}}')
                 ->where(['matrixHandle' => $matrixHandle])
                 ->groupBy('blockHandle')
@@ -276,7 +349,7 @@ class Inventory extends Component
         return true;
     }
 
-    public function listEntries($handle = null, $matrixBlock = null) {
+    public function listElements($handle = null, $matrixBlock = null) {
         $models = [];
         if ($matrixBlock && $handle) {
             $blockRecords = (new BlockListRecord())->find()

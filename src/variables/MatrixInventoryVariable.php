@@ -71,8 +71,8 @@ class MatrixInventoryVariable
         return $result;
     }
 
-    public function listEntries($handle = null, $matrixBlock = null) {
-        $result = (new Inventory)->listEntries($handle, $matrixBlock);
+    public function listElements($handle = null, $matrixBlock = null) {
+        $result = (new Inventory)->listElements($handle, $matrixBlock);
         return $result;
     }
 
