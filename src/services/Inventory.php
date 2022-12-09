@@ -163,7 +163,7 @@ class Inventory extends Component
                             $model->blockId = $block->id;
                             $model->entryId = $entry->id;
                             $model->siteId = $entry->siteId;
-                            Craft::trace("storeAllMatrixes model:" . json_encode($model->getAttributes()));
+                            Craft::info("storeAllMatrixes model:" . json_encode($model->getAttributes()), __METHOD__);
                             $blockRecord->setAttributes($model->getAttributes(), false);
                             $blockRecord->save();
                         }
