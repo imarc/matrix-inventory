@@ -33,7 +33,7 @@ class BlockElementList extends BaseJob
      *
      * @var string
      */
-    protected $elmentType = null;
+    protected $elementType = null;
 
     // Public Methods
     // =========================================================================

@@ -212,7 +212,7 @@ class Inventory extends Component
                             $model = new BlockListModel();
 
                             $blockRecord = new BlockListRecord();
-                            $model->enabled = $elementType == 'tag' ? true : $element->enabled;
+                            $model->enabled = $entry->enabled;
                             $now = new DateTime();
                             $model->dateCreated = $now->format('Y-m-d H:i:s');
                             $model->dateUpdated = $now->format('Y-m-d H:i:s');
