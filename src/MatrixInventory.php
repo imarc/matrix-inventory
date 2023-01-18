@@ -230,17 +230,15 @@ class MatrixInventory extends Plugin
     // Private Methods
     
     private function configureHooks() {
-        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
-            if ($event->element instanceof Entry) {               
-                $entry = $event->element;
-                if (ElementHelper::isDraftOrRevision($entry)) {
-                    return;
-                } else {
-                    $inventoryService = new InventoryService();
-                    $inventoryService->updateEntryMatrixes($entry);
-                }
-                
+        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {            
+            $element = $event->element;
+            if (ElementHelper::isDraftOrRevision($element)) {
+                return;
+            } else {
+                $inventoryService = new InventoryService();
+                $inventoryService->updateElementMatrixes($element);
             }
+
         });
     }
 }

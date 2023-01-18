@@ -129,7 +129,8 @@ class Install extends Migration
                     'matrixHandle' => $this->string(255)->notNull()->defaultValue(''),
                     'blockHandle' => $this->string(255)->notNull()->defaultValue(''),
                     'enabled' => $this->boolean()->notNull(),
-                    'entryId' => $this->integer()->notNull(),
+                    'elementId' => $this->integer()->notNull(),
+                    'elementType' => $this->string(255)->notNull()->defaultValue(''),
                     'blockId' => $this->integer()->notNull(),
                 ]
                 );
