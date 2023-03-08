@@ -124,19 +124,19 @@ class Inventory extends Component
         $this->storeMatrixFields();
         foreach ($sections as $section) {
             echo $section . "\n";
-            //$job = new BlockListJob();
-            //$job->setSection($section);
-            //\craft\helpers\Queue::push($job);
-            $this->storeSectionMatrixes($section);
+            $job = new BlockListJob();
+            $job->setSection($section);
+            \craft\helpers\Queue::push($job);
+            //$this->storeSectionMatrixes($section);
             //break;
         }
         $otherElements = ['category', 'asset', 'tag', 'globalset', 'user'];
         foreach ($otherElements as $elementType) {
             echo $elementType . "\n";
-            $this->storeElementMatrixes($elementType);
-            /*$job = new BlockElementJob();
+            //$this->storeElementMatrixes($elementType);
+            $job = new BlockElementJob();
             $job->setElementType($elementType);
-            Craft::$app->queue->push($job);*/
+            Craft::$app->queue->push($job);
         }        
     }
 
