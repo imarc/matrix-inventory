@@ -123,7 +123,6 @@ class Inventory extends Component
         $sections = Craft::$app->sections->allSections;
         $this->storeMatrixFields();
         foreach ($sections as $section) {
-            echo $section . "\n";
             $job = new BlockListJob();
             $job->setSection($section);
             \craft\helpers\Queue::push($job);
@@ -132,7 +131,6 @@ class Inventory extends Component
         }
         $otherElements = ['category', 'asset', 'tag', 'globalset', 'user'];
         foreach ($otherElements as $elementType) {
-            echo $elementType . "\n";
             //$this->storeElementMatrixes($elementType);
             $job = new BlockElementJob();
             $job->setElementType($elementType);
@@ -163,7 +161,6 @@ class Inventory extends Component
             foreach ($blockRecords as $record) {
                 $record->delete();
             }
-            echo $element->title . "\n";
             $entryFields = $element->getFieldLayout()->getCustomFields();
             foreach ($entryFields as $fieldLayout) {
                 $field = Craft::$app->fields->getFieldById($fieldLayout->id);
@@ -199,13 +196,9 @@ class Inventory extends Component
     
 
     public function storeSectionMatrixes($section) {
-        echo "In storeSectionMatrixes\n";
         if ($section) {
-            echo "If section true\n";
             $entries = Entry::find()->section($section->handle)->anyStatus()->all();
-            echo "Num entries in section: " . count($entries) . "\n";
             foreach ($entries as $entry) {
-                echo $entry->title . "\n";
                 $blockRecords = (new BlockListRecord())->find()
                     ->where([
                         'elementId' => $entry->id,
@@ -344,7 +337,6 @@ class Inventory extends Component
             }
         }
         foreach ($fields as $field) {
-            echo $field->name . "\n";
             if (get_class($field) == 'craft\\fields\\Matrix') {
                 if (!in_array($field->handle, $handles)) {
                     array_push($handles, $field->handle);
