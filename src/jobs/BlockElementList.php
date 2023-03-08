@@ -38,7 +38,7 @@ class BlockElementList extends BaseJob
     // Public Methods
     // =========================================================================
 
-    public function setElementType($elementType) {
+    public function setElementType($elementType): void {
         $this->elementType = $elementType;
     }
     

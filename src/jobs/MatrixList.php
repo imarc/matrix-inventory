@@ -25,15 +25,6 @@ use craft\queue\BaseJob;
  */
 class MatrixList extends BaseJob
 {
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * Some attribute
-     *
-     * @var string
-     */
-    public string $someAttribute = 'Some Default';
 
     // Public Methods
     // =========================================================================
